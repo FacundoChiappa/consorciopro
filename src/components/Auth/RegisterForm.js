@@ -1,19 +1,19 @@
-// src/components/Auth/LoginForm.js
+// src/components/Auth/RegisterForm.js
 import { useState } from 'react';
 import { supabase } from '../../utils/supabaseClient'; // Asegurate que este bien importado
 
-const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
+const RegisterForm = ({ onSwitchToLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -21,7 +21,8 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
     if (error) {
       setErrorMsg(error.message);
     } else {
-      onLoginSuccess(data.user); // Pasamos el usuario al App
+      alert('¡Registro exitoso! Revisá tu correo para confirmar.');
+      onSwitchToLogin(); // Vuelve al login después de registrarse
     }
 
     setLoading(false);
@@ -30,8 +31,8 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <h2 className="text-2xl font-bold mb-6 text-center">Crear cuenta</h2>
+        <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="email"
             placeholder="Correo electrónico"
@@ -54,13 +55,13 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
             disabled={loading}
             className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
           >
-            {loading ? 'Ingresando...' : 'Ingresar'}
+            {loading ? 'Registrando...' : 'Registrarse'}
           </button>
         </form>
         <p className="text-center mt-4 text-sm">
-          ¿No tenés cuenta?{' '}
-          <button onClick={onSwitchToRegister} className="text-blue-600 underline">
-            Registrate
+          ¿Ya tenés cuenta?{' '}
+          <button onClick={onSwitchToLogin} className="text-blue-600 underline">
+            Iniciar sesión
           </button>
         </p>
       </div>
@@ -68,4 +69,4 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

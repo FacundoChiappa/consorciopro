@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 
-const ExpenseManager = () => {
+const ExpenseManager = ({ user }) => {  // <-- Le pasamos `user`
   const [expenses, setExpenses] = useState([]);
   const [formData, setFormData] = useState({
     description: '',
@@ -33,9 +33,20 @@ const ExpenseManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.description || !formData.amount || !formData.date || !formData.tipo) {
+      alert('Completa todos los campos obligatorios.');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('expenses')
-      .insert([formData])
+      .insert([
+        {
+          ...formData,
+          amount: parseFloat(formData.amount),
+          user_id: user.id, // <-- Muy importante: atamos el gasto al usuario
+        }
+      ])
       .select();
 
     if (error) {

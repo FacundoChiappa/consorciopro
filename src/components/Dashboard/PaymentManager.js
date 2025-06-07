@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { supabase } from '../../utils/supabaseClient';
 
-const PaymentManager = () => {
+const PaymentManager = ({ user }) => {  // 👈 Le pasamos `user`
   const [payments, setPayments] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPayment, setNewPayment] = useState({
@@ -38,7 +38,13 @@ const PaymentManager = () => {
 
     const { data, error } = await supabase
       .from('payments')
-      .insert([newPayment])
+      .insert([
+        {
+          ...newPayment,
+          monto: parseFloat(newPayment.monto),
+          user_id: user.id,  // 👈 Importante: asociamos el pago al usuario
+        }
+      ])
       .select();
 
     if (error) {
@@ -101,7 +107,7 @@ const PaymentManager = () => {
             <tr key={payment.id}>
               <td className="py-2">{payment.unidad}</td>
               <td className="py-2">{payment.mes}</td>
-              <td className="py-2">${payment.monto}</td>
+              <td className="py-2">${Number(payment.monto).toLocaleString('es-AR')}</td>
               <td className="py-2">{payment.metodo_pago}</td>
               <td className="py-2">
                 <button
@@ -147,11 +153,11 @@ const PaymentManager = () => {
                 value={newPayment.metodo_pago}
                 onChange={(e) => setNewPayment({ ...newPayment, metodo_pago: e.target.value })}
                 className="w-full border border-gray-300 rounded p-2"
-                >
+              >
                 <option value="">Selecciona el tipo de pago</option>
-                <option value="Debito">Tarjeta debito</option>
-                <option value="Credito">Tarjeta Credito</option>
-                <option value="Transferecnia">Transferencia</option>
+                <option value="Debito">Tarjeta Débito</option>
+                <option value="Credito">Tarjeta Crédito</option>
+                <option value="Transferencia">Transferencia</option>
                 <option value="Efectivo">Efectivo</option>
               </select>
               <div className="flex justify-end gap-2 mt-4">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import LoginForm from './components/Auth/LoginForm';
+import RegisterForm from './components/Auth/RegisterForm';
 import AdminPanel from './components/Dashboard/AdminPanel';
 import UnitManager from './components/Dashboard/UnitManagement';
 import ExpensesCalculator from './components/Expenses/ExpenseCalculator';
@@ -11,29 +12,33 @@ const App = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [units, setUnits] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const renderContent = () => {
     switch (currentView) {
       case 'dashboard':
-        return <AdminPanel units={units} setUnits={setUnits} expenses={expenses} setExpenses={setExpenses} />;
+        return <AdminPanel user={user} units={units} setUnits={setUnits} expenses={expenses} setExpenses={setExpenses} />;
       case 'unidades':
-        return <UnitManager units={units} setUnits={setUnits} />;
+        return <UnitManager user={user} units={units} setUnits={setUnits} />; // <-- le paso user
       case 'gastos':
-        return <ExpenseManager expenses={expenses} setExpenses={setExpenses} />;
+        return <ExpenseManager user={user} expenses={expenses} setExpenses={setExpenses} />; // <-- le paso user
       case 'calcular-expensas':
         return <ExpensesCalculator units={units} expenses={expenses} />;
       default:
-        return <AdminPanel units={units} setUnits={setUnits} expenses={expenses} setExpenses={setExpenses} />;
+        return <AdminPanel user={user} units={units} setUnits={setUnits} expenses={expenses} setExpenses={setExpenses} />;
     }
   };
 
   if (!user) {
-    return (
+    return isRegistering ? (
+      <RegisterForm onSwitchToLogin={() => setIsRegistering(false)} />
+    ) : (
       <LoginForm
         onLogin={(userData) => {
           setUser(userData);
           setCurrentView('dashboard');
         }}
+        onSwitchToRegister={() => setIsRegistering(true)}
       />
     );
   }

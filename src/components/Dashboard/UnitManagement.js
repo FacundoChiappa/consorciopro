@@ -1,9 +1,9 @@
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { supabase } from '../../utils/supabaseClient'; // Acordate de ajustar bien el path
+import { supabase } from '../../utils/supabaseClient'; // Acordate de ajustar el path
 
-const UnitManagement = () => {
+const UnitManagement = ({ user }) => {  // 👈 Ahora recibimos user como prop
   const [units, setUnits] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUnit, setNewUnit] = useState({
@@ -26,6 +26,7 @@ const UnitManagement = () => {
 
     if (error) {
       console.error(error);
+      toast.error('Error al cargar unidades');
     } else {
       setUnits(data);
     }
@@ -39,7 +40,12 @@ const UnitManagement = () => {
 
     const { data, error } = await supabase
       .from('units')
-      .insert([newUnit])
+      .insert([
+        {
+          ...newUnit,
+          user_id: user.id,  // 👈 Aca le mandamos el user_id
+        }
+      ])
       .select(); // Necesario para que devuelva el nuevo registro
 
     if (error) {
