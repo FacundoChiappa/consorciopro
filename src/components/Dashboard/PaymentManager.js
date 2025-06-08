@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { supabase } from '../../utils/supabaseClient';
 
-const PaymentManager = ({ user }) => {  // 👈 Le pasamos `user`
+const PaymentManager = ({ user }) => {
   const [payments, setPayments] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPayment, setNewPayment] = useState({
@@ -14,13 +14,14 @@ const PaymentManager = ({ user }) => {  // 👈 Le pasamos `user`
   });
 
   useEffect(() => {
-    fetchPayments();
-  }, []);
+    if (user) fetchPayments();
+  }, [user]); // <- Importante agregar user como dependencia
 
   const fetchPayments = async () => {
     const { data, error } = await supabase
       .from('payments')
       .select('*')
+      .eq('user_id', user.id) // <- Trae solo pagos del usuario actual
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -42,7 +43,7 @@ const PaymentManager = ({ user }) => {  // 👈 Le pasamos `user`
         {
           ...newPayment,
           monto: parseFloat(newPayment.monto),
-          user_id: user.id,  // 👈 Importante: asociamos el pago al usuario
+          user_id: user.id, // <- Asocia al usuario
         }
       ])
       .select();
@@ -66,7 +67,8 @@ const PaymentManager = ({ user }) => {  // 👈 Le pasamos `user`
     const { error } = await supabase
       .from('payments')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id); // <- Solo deja borrar los pagos de ese usuario
 
     if (error) {
       toast.error('Error al eliminar pago.');
