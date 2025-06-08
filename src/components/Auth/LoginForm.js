@@ -1,6 +1,5 @@
-// src/components/Auth/LoginForm.js
 import { useState } from 'react';
-import { supabase } from '../../utils/supabaseClient'; // Asegurate que este bien importado
+import { supabase } from '../../utils/supabaseClient';
 
 const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
@@ -20,8 +19,8 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
 
     if (error) {
       setErrorMsg(error.message);
-    } else {
-      onLoginSuccess(data.user); // Pasamos el usuario al App
+    } else if (data.user) {
+      onLoginSuccess(data.user);
     }
 
     setLoading(false);
